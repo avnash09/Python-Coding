@@ -32,9 +32,7 @@ felix = Cat('Felix')
 
 pets = [niko, felix]
 for pet in pets:
-    #pet.speak()
-    pass
+    pet.speak()
 
-
-
-print(list(map(lambda x:x.speak(), pets)))
+#Trying to use Lamda expressions
+#print(list(map(lambda x:x.speak(), pets)))
