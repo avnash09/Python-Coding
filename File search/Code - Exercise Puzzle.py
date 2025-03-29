@@ -21,8 +21,7 @@ def pattern_search(file, pattern = r'\d{3}-\d{3}-\d{4}'):
         return (re.search(pattern, text), file)
 
 #Set working directory
-work_dir = cwd + '\\test_folder'
-#os.chdir(work_dir)
+work_dir = cwd + '\\test_folder'    #change this to '\\extracted_content' once the contents are unzipped
 
 result = []
 
