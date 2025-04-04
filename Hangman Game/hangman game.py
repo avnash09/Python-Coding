@@ -10,26 +10,18 @@ def clear_terminal():
 
 no_of_letters = [4,5,6,7,8]
 
-#base_url = 'https://random-word-api.herokuapp.com/word'
-#base_url = 'https://random-word-api.herokuapp.com/word?number={}'
-#base_url = 'https://random-word-api.herokuapp.com/word?length={}'
-#base_url = 'https://random-word-api.vercel.app/api?words=10&length=4'
 base_url = 'https://random-word-api.vercel.app/api'
 
 #url = base_url.format(2)
 length = random.choice(no_of_letters)
 
 res = requests.get(base_url, params={'words':1, 'length':length, 'type':'uppercase'})
-#print(f'length, {length}, {res.json()[0]}')
+print(f'length, {length}, {res.json()[0]}')
 
 generated_word = res.json()[0]
-#print(generated_word)
+print(f'generated word: {generated_word}')
 
 dictionary_api_url = f'https://api.dictionaryapi.dev/api/v2/entries/en/{generated_word}'
-
-meaning = []
-part_of_speech = []
-hint = []
 
 try:
     
@@ -41,13 +33,8 @@ try:
 
     # Extract the meaning from the response
     meanings = response.json()[0]['meanings']
-    meaning.append(meanings[0]['definitions'][0]['definition'])
-    meaning.append(meanings[1]['definitions'][0]['definition'])
 
-    part_of_speech.append(meanings[0]['partOfSpeech'].capitalize())
-    part_of_speech.append(meanings[1]['partOfSpeech'].capitalize())
-
-    hint = [part_of_speech, meaning]
+    print(response.status_code)
 
 except requests.exceptions.HTTPError as http_err:
         print(f"HTTP error occurred: {http_err}")
@@ -55,14 +42,27 @@ except requests.exceptions.HTTPError as http_err:
 except Exception as err:
         print(f"An error occurred: {err}")
 
+except IndexError:
+    print('Index Error.')
+
 else:
-    print(f"Error: Unable to fetch meaning for the word '{generated_word}'")
+    if response.status_code != 200:
+        print(f"Error: Unable to fetch meaning for the word '{generated_word}'")
+finally:
+    hints = {}
+    
+    for meaning in meanings:
+        part_of_speech = meaning['partOfSpeech']
+        definitions = meaning['definitions']
+        #hints.append(f"\t{part_of_speech}: {definition['definition']}")
+        hints[part_of_speech] = [definition['definition'] for definition in definitions]
+    #print(hints)
 
 
 if __name__ == '__main__':
 
     #Clear the terminal
-    clear_terminal()
+    #clear_terminal()
 
     print(hangman_logo)
     print(hangman)
@@ -78,9 +78,6 @@ if __name__ == '__main__':
 
     chances = len(generated_word)
     guesses = set()
-
-    print(f"Hint:\t{hint[0][0]}: {hint[1][0]}\n\t{hint[0][1]}: {hint[1][1]}")
-
 
     while True:
 
@@ -99,6 +96,10 @@ if __name__ == '__main__':
             
             if chances != len(generated_word):
                 print(hangman_dict[chances])
+
+            print('Hint:\n')
+            for key in hints.keys():
+                print('\t'+key+'\t: '+hints[key][0])
 
             print(f'\nNo of chances left: {chances}')
 
@@ -140,3 +141,24 @@ if __name__ == '__main__':
             break
         
         guess_word = ''.join(blank_spaces)
+
+'''
+#base_url = 'https://random-word-api.herokuapp.com/word'
+#base_url = 'https://random-word-api.herokuapp.com/word?number={}'
+#base_url = 'https://random-word-api.herokuapp.com/word?length={}'
+#base_url = 'https://random-word-api.vercel.app/api?words=10&length=4'
+
+#meaning = []
+#part_of_speech = []
+#hint = []
+
+    meaning.append(meanings[0]['definitions'][0]['definition'])
+    meaning.append(meanings[1]['definitions'][0]['definition'])
+
+    part_of_speech.append(meanings[0]['partOfSpeech'].capitalize())
+    part_of_speech.append(meanings[1]['partOfSpeech'].capitalize())
+
+    hint = [part_of_speech, meaning]
+    print(hint, part_of_speech, meaning)
+
+'''
