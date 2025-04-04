@@ -16,10 +16,10 @@ base_url = 'https://random-word-api.vercel.app/api'
 length = random.choice(no_of_letters)
 
 res = requests.get(base_url, params={'words':1, 'length':length, 'type':'uppercase'})
-print(f'length, {length}, {res.json()[0]}')
+#print(f'length, {length}, {res.json()[0]}')
 
 generated_word = res.json()[0]
-print(f'generated word: {generated_word}')
+#print(f'generated word: {generated_word}')
 
 dictionary_api_url = f'https://api.dictionaryapi.dev/api/v2/entries/en/{generated_word}'
 
@@ -97,9 +97,9 @@ if __name__ == '__main__':
             if chances != len(generated_word):
                 print(hangman_dict[chances])
 
-            print('Hint:\n')
+            print(f'\nHint: {len(generated_word)} letter word.\n')
             for key in hints.keys():
-                print('\t'+key+'\t: '+hints[key][0])
+                print('\t'+key+': '+hints[key][0])
 
             print(f'\nNo of chances left: {chances}')
 
