@@ -11,6 +11,51 @@ def clear_terminal():
     else:
         os.system('clear')
 
+def ceasar_cipher(message, shift_number, action):
+
+    if action == 'decode':
+        shift_number *= -1
+
+    output_msg = ''
+    for each_letter in message:
+
+        if each_letter not in characters:
+            output_msg += each_letter
+        else:
+            index = characters.index(each_letter)
+            adj_index = (index+shift_number) % len(characters)
+            output_msg += characters[adj_index]
+
+    print(f'Your {action}d message is --> {output_msg}')
+
+clear_terminal()
+
+while True:
+
+    cipher_action = input("Type 'encode' to encode a message, Type 'decode' to decode.\n")
+
+    if cipher_action.lower() not in ['encode', 'decode']:
+        print('Invalid input! Try again.')
+        continue
+
+    else:
+
+        message = input('Type your message to encode: ')
+        shift_number = int(input('Enter shift number: '))
+        ceasar_cipher(message.lower(), shift_number, cipher_action)
+
+    continue_cipher = input('Do you want to continue? (y/n): ')
+
+    if continue_cipher[0].upper() != 'Y':
+        break
+
+
+
+
+'''
+## OLD CODE
+#encoded_msg = ''.join([letters[(letters.index(each_letter)+shift_number) if (letters.index(each_letter)+shift_number) < 26 else ((letters.index(each_letter)+shift_number) % 26)] for each_letter in message])
+
 def encode(message, shift_number):
 
     encoded_msg = ''
@@ -18,9 +63,6 @@ def encode(message, shift_number):
         index = characters.index(each_letter)
         adj_index = (index+shift_number) if (index+shift_number) < len(characters) else ((index+shift_number) % len(characters))
         encoded_msg += characters[adj_index]
-
-    #encoded_msg = ''.join([letters[(letters.index(each_letter)+shift_number) if (letters.index(each_letter)+shift_number) < 26 else ((letters.index(each_letter)+shift_number) % 26)] for each_letter in message])
-    #kl$cp1cqdphclvcdylqdvk clcdpcwu1lqjcwrchqfrghcdcphvvdjhckhuh  - 3 qw{lg'{dylqdvkadqdqg{$$
 
     print(message, '-->', encoded_msg, '-',shift_number)
 
@@ -35,15 +77,6 @@ def decode(message, shift_number):
 
     print(message, '-->', decoded_msg)
 
-while True:
-
-    cipher = input("Type 'encode' to encode a message, Type 'decode' to decode.\n")
-
-    if cipher.lower() not in ['encode', 'decode']:
-        print('Invalid input! Try again.')
-        continue
-
-    else:
 
         #clear terminal
         clear_terminal()
@@ -65,3 +98,4 @@ while True:
             shift_number = int(input('Enter shift number: '))
             decode(message.lower(), shift_number)
             break
+'''
