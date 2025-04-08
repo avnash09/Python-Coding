@@ -16,7 +16,7 @@ def encode(message, shift_number):
     encoded_msg = ''
     for each_letter in message:
         index = characters.index(each_letter)
-        adj_index = (index+shift_number) if (index+shift_number) < 67 else ((index+shift_number) % 67)
+        adj_index = (index+shift_number) if (index+shift_number) < len(characters) else ((index+shift_number) % len(characters))
         encoded_msg += characters[adj_index]
 
     #encoded_msg = ''.join([letters[(letters.index(each_letter)+shift_number) if (letters.index(each_letter)+shift_number) < 26 else ((letters.index(each_letter)+shift_number) % 26)] for each_letter in message])
@@ -30,7 +30,7 @@ def decode(message, shift_number):
     for each_letter in message:
 
         index = characters.index(each_letter)
-        adj_index = index-shift_number if (index-shift_number) >= 0 else ((index-shift_number) + 67)
+        adj_index = index-shift_number if (index-shift_number) >= 0 else ((index-shift_number) + len(characters))
         decoded_msg += characters[adj_index]
 
     print(message, '-->', decoded_msg)
