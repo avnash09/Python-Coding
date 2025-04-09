@@ -1,5 +1,5 @@
 import os, time
-#from art import logo
+from art import logo
 
 def clear_terminal():
     if os.name == 'nt':
@@ -7,6 +7,7 @@ def clear_terminal():
     else:
         os.system('clear')
 
+print(logo)
 print("Welcome to the Silent Auction Program.")
 
 bids = {}
