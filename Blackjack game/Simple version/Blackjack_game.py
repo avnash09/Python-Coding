@@ -29,7 +29,8 @@ def check_score(cards = []):
         cards.remove(11)
         cards.append(1)
     
-    return sum(cards) if cards else 0   #return 0 if cards list is empty, return sum if cards list is non-empty
+    #return 0 if cards list is empty, return sum if cards list is non-empty
+    return sum(cards) if cards else 0
 
 def bust(player):
     '''Returns True if Player's score is greater than 21'''
@@ -67,7 +68,6 @@ while game_on:
     clear_terminal()
 
     print(logo)
-    #busted = False
     is_user_playing = True
 
     dealer = []
@@ -80,10 +80,8 @@ while game_on:
     while is_user_playing:
 
         if check_score(user) == 0 or check_score(dealer) == 0 or bust(user):
-            #print('You went over. You lose!')
-            #busted = True
             is_user_playing = False
-            #break
+
         else:
             print(f'Your cards: {user}, Current score: {check_score(user)}')
             print(f"Computer's first card: {dealer[0]}")
@@ -92,42 +90,20 @@ while game_on:
 
             if another_card[0] == 'Y':
                 user.append(deal_card())
-                #continue
+
             else:
-                #break
                 is_user_playing = False
     
     while check_score(dealer) != 0 and check_score(dealer) < 17 and not bust(user):
         dealer.append(deal_card())
     
         if bust(dealer):
-            #print('Computer went over. You win!')
-            #busted = True
             break
     
     print(f"Your final hand: {user}, final score: {check_score(user)}.")
     print(f"Computer's final hand: {dealer}, final score: {check_score(dealer)}.")
     print(compare(check_score(user), check_score(dealer)))
 
-    # if not busted:
-    #     if check_score(user) == check_score(dealer):
-    #         print("It's a draw!")
-    #     elif check_score(user) == 0:
-    #         print('Win with a Blackjack!')
-    #     elif check_score(dealer):
-    #         print('You lose, Opponent has a Blackjack!')
-    #     elif (21 - check_score(user)) < (21 - check_score(dealer)):
-    #         print('You win!')
-    #     else: #(21 - check_score(dealer)) > (21 - check_score(player)):
-    #         print('Computer wins. You lose!')
-    
-    # else:
-    #     #print('Busted', busted)
-    #     if bust(user):
-    #         print('You went over. You lose!')
-    #     else:
-    #         print('Computer went over. You win!')
-    
     if not play_again():
         game_on = False
     
