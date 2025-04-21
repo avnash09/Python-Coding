@@ -15,14 +15,13 @@ s.colormode(255)
 t.penup()
 dots = 100 #input("Enter the number of dots: ")
 rows = 10
-dot_size = 30
+dot_size = 20
 step_size = dot_size * 1.5
 dots_each_row = dots / rows
-#home_xcor = -1 * ((500 / dots_each_row) + (dot_size + step_size))
-home_xcor = -1 * ((step_size) * dots_each_row/2)
-home_ycor = -1 * ((step_size) * dots_each_row/2)
-print(home_xcor, ',', home_ycor)
-t.setpos(home_xcor, home_ycor)
+start_xcor = -1 * ((step_size) * dots_each_row/2) + (step_size/2)
+start_ycor = -1 * ((step_size) * dots_each_row/2) + (step_size/2)
+#print(start_xcor, ',', start_ycor)
+t.setpos(start_xcor, start_ycor)
 
 def get_rgb():
 
@@ -33,7 +32,7 @@ def get_rgb():
     return (r, g, b)
 
 for y in range(1, dots + 1):
-    t.dot(dot_size, 'coral')
+    t.dot(dot_size, get_rgb())
     t.forward(step_size)
 
     if y % 10 == 0:
