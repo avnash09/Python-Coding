@@ -4,8 +4,24 @@ os.system('clear')
 
 rows = 10
 
-for i in range(1, rows):
-    print(' ' * (rows-i) + '* ' * i)
+def triangle():
 
-for i in range(1, rows):
-    print(' ' * int((rows/2)+1) + '* ' * int((rows/2)-1))
+    star_count = 0
+    for i in range(1, rows+1):
+        print(' ' * (rows-i) + '* ' * i)
+        star_count += i
+    
+    return star_count
+
+def rectangle():
+
+    for i in range(1, rows):
+        if rows % 2 == 0:
+            print(' ' * int((rows/2)+1) + '* ' * int((rows/2)-1))
+        else:
+            print(' ' + ' ' * int((rows/2)+1) + '* ' * int((rows/2)-1))
+
+star_count = triangle()
+
+
+print(f'star count: {star_count}')
