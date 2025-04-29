@@ -73,6 +73,19 @@ def triangle():
         t.backward((step_size)*(i-1))
         t.forward(step_size/2)
 
-quadrilateral()
+def circle():
 
-s.exitonclick()
+    pi = 3.142
+
+    rad = 50
+    cir = 2*pi*rad
+    dot_size = 20
+    step_size = dot_size * 1.5
+
+    dots = int(cir / step_size)
+
+    print(cir, dots)
+
+circle()
+
+#s.exitonclick()
