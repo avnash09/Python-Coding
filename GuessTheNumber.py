@@ -9,36 +9,52 @@ def clear_terminal():
 clear_terminal()
 
 def guess():
-    return input("Enter your guess: ")
-
-user_guess = guess()
-
-while True:
-    if not user_guess.isdigit():
-        print("This is not a number, Please try again.")
-        user_guess = guess()
-    else:
-        break
+    while True:
+        num = input("Enter your guess: ")
+        if not num.isdigit():
+            print("This is not a number, Please try again.")
+        else:
+            return int(num)
 
 attempts = {
     "easy": 5,
     "hard": 10
 }
 
-print("Choose your level - ")
-for level, chances in attempts.items():
-    print(f"\t {level} -> {chances} attempts")
-
-difficulty = input("Type 'easy' or 'hard': ")
-
-while True:
-    if difficulty.lower() not in ['easy','hard']:
-        print("Invalid input!")
+def no_of_attempts():
+    print("Choose your difficulty - ")
+    for level, chances in attempts.items():
+        print(f"\t {level} -> {chances} attempts")
+        
+    while True:
         difficulty = input("Type 'easy' or 'hard': ")
+        if difficulty.lower() not in ['easy','hard']:
+            print("Invalid input!")
+        else:
+            return attempts[difficulty]
+
+def guess_the_number(number, user_guess):
+    
+    # previous_guesses = []
+    if user_guess == number:
+        print(f"Your guessed it right! the number was {number}.")
     else:
-        break
+        if user_guess > number:
+            print("Too high")
+        else:
+            print("Too low")
 
-print(difficulty)
+print("Welcome to the Number Guessing game!")
+print("I'm thinking of a number between 1 and 100.")
 
-def guess_the_number(num):
-    pass
+attempts=no_of_attempts()
+chosen_number = random.randint(1, 100)
+
+for turn in range(attempts, 0, -1):
+    print(f"You have {turn} guesses left to guess the number")
+    guess_the_number(number = chosen_number, user_guess = guess())
+    if turn > 1:
+        print("Guess again.")
+    else:
+        print("Out of guesses!")
+        print(f"The correct number was {chosen_number}.")
