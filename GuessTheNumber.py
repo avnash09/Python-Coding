@@ -19,10 +19,26 @@ while True:
         user_guess = guess()
     else:
         break
-    
-    
-    
-print(user_guess)
+
+attempts = {
+    "easy": 5,
+    "hard": 10
+}
+
+print("Choose your level - ")
+for level, chances in attempts.items():
+    print(f"\t {level} -> {chances} attempts")
+
+difficulty = input("Type 'easy' or 'hard': ")
+
+while True:
+    if difficulty.lower() not in ['easy','hard']:
+        print("Invalid input!")
+        difficulty = input("Type 'easy' or 'hard': ")
+    else:
+        break
+
+print(difficulty)
 
 def guess_the_number(num):
     pass
