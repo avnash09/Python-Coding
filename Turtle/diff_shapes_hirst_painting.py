@@ -21,7 +21,7 @@ s = Screen()
 t.speed("fastest")
 s.colormode(255)
 t.penup()
-#t.hideturtle()
+t.hideturtle()
 #print(start_xcor, ',', start_ycor)
 
 def quadrilateral():
@@ -86,6 +86,6 @@ def circle():
 
     print(cir, dots)
 
-circle()
+triangle()
 
-#s.exitonclick()
+s.exitonclick()
