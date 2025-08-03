@@ -4,7 +4,13 @@ from snake import Snake
 from food import Food
 from scoreboard import Scoreboard
 
-os.system('cls')
+def clear_terminal():
+    if os.name == 'nt': #Windows
+        os.system('cls')
+    else:   #Linus/MacOS
+        os.system('clear')
+        
+clear_terminal()
 
 s = Screen()
 s.setup(width=600, height=600)
