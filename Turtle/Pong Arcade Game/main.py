@@ -26,10 +26,10 @@ ball = Ball()
 scoreboard = Scoreboard()
 
 s.listen()
-s.onkey(r_paddle.go_up, "Up")
-s.onkey(r_paddle.go_down, "Down")
-s.onkey(l_paddle.go_up, "w")
-s.onkey(l_paddle.go_down, "s")
+s.onkeypress(r_paddle.go_up, "Up")
+s.onkeypress(r_paddle.go_down, "Down")
+s.onkeypress(l_paddle.go_up, "w")
+s.onkeypress(l_paddle.go_down, "s")
 
 game_on = True
 
