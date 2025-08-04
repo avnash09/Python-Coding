@@ -1,7 +1,7 @@
 from turtle import Turtle, Screen
 import random
 
-COLORS = ["red", "blue", "green", "magenta", "orange", "purple", "brown", "SeaGreen", "pink"]
+COLORS = ["red", "blue", "green", "magenta", "orange", "purple", "brown", "LightSeaGreen", "LightSkyBlue"]
 STARTING_MOVE_DISTANCE = 5
 MOVE_INCREMENT = 10
 
@@ -41,7 +41,7 @@ if __name__ == '__main__':
         time.sleep(0.1)
         s.update()
         
-        if random.randint(1,10) == 3:
+        if random.randint(1,10) <= 3:
             car = CarManager()
             cars.append(car)
 

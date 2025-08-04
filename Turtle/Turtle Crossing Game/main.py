@@ -31,7 +31,7 @@ while game_on:
     s.update()
 
     #create cars randomly
-    if random.randint(1,10) == 1:
+    if random.randint(0,10) <= 3:
         new_car = CarManager()
         cars.append(new_car)
 
@@ -46,13 +46,14 @@ while game_on:
     if player.has_finished():
         scoreboard.increase_level()
         player.reset_position()
-        for car in cars:
-            car.level_up()
+        CarManager.level_up()
 
     #Detect collision with car
     for car in cars:
         if car.distance(player) < 20 and car.ycor() - player.ycor() < 10:
             game_on = False
             scoreboard.game_over()   
+    
+    # print(f"Car speed: {CarManager.car_speed}")
     
 s.exitonclick()
