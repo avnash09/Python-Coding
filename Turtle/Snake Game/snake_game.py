@@ -4,6 +4,8 @@ from snake import Snake
 from food import Food
 from scoreboard import Scoreboard
 
+SNAKE_SPEED = 0.1
+
 def clear_terminal():
     if os.name == 'nt': #Windows
         os.system('cls')
@@ -32,7 +34,7 @@ s.onkey(snake.right, "Right")
 is_game_on = True
 while is_game_on:
     s.update()
-    time.sleep(0.05)
+    time.sleep(SNAKE_SPEED)
 
     snake.move()
 

@@ -1,4 +1,5 @@
 from turtle import Turtle
+import os
 
 ALIGNMENT = "center"
 FONT = ("Courier", 18, 'normal')
@@ -10,7 +11,9 @@ class Scoreboard(Turtle):
         self.color('white')
         self.hideturtle()
         self.score = 0
-        self.high_score = 0
+        self.filepath = os.getcwd() + "\\Turtle\\Snake Game\\"
+        self.filename = 'data_file.txt'
+        self.high_score = self.get_high_score()
         self.penup()
         self.update_scoreboard()
     
@@ -37,3 +40,15 @@ class Scoreboard(Turtle):
     def update_high_score(self):
         if self.score > self.high_score:
             self.high_score = self.score
+            with open(self.filepath + self.filename, mode='w') as file:
+                file.write(str(self.high_score))
+
+    def get_high_score(self):
+        with open(self.filepath + self.filename, mode='r') as file:
+            high_score = file.read()
+            return int(high_score)
+
+if __name__ == '__main__':
+        
+    s = Scoreboard()
+    s.get_high_score()
