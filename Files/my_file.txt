@@ -1,0 +1,3 @@
+Hi Avinash!
+This is my_file.txt
+new text for the file.
