@@ -3,3 +3,4 @@ __pycache__
 scraped images
 .vscode
 *.zip
+weather_data - Sheet1.csv
