@@ -46,17 +46,13 @@ while game_on:
         break
 
     state_name = user_answer.title()
-    print(state_name)
-    print(state_name in all_states)
 
     if state_name in all_states:
         
         correct_answers.append(state_name)
         state_data = data[data.state == state_name]
-        # print(state_data)
 
         t = turtle.Turtle()
-        # t.speed('slow')
         t.penup()
         t.hideturtle()
         # x_cor, y_cor = data.loc[data.state == state_name, ['x', 'y']].iloc[0]
@@ -65,10 +61,8 @@ while game_on:
         y_cor = state_data.y.item()
         t.goto(x_cor, y_cor)
         t.write(state_name, move=True, align='center', font=('Arial', 8, "normal"))
-        # screen.update()
 
         all_states.remove(state_name)
-        print("state list:", all_states)
 
     if not all_states:
         game_on = False
