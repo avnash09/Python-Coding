@@ -19,7 +19,7 @@ def save_onclick_coor(x, y):
     coordinates_list.append((x, y))
     if len(coordinates_list) == len(all_states) + 1:
         print(f"Collected {len(coordinates_list)} coordinates.")
-        coordinates_list.pop(0)
+        coordinates_list.pop(0) #First click is a initialization click, which is not required
         print(coordinates_list)
         coordinates_dict = {
             'state': all_states,
