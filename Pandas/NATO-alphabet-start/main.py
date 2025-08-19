@@ -16,7 +16,14 @@ df = pd.read_csv(filepath)
 nato_dict = {row.letter:row.code for index, row in df.iterrows()}
 print(nato_dict)
 
-user_input = input("Enter a word: ").upper()
-phonetic_words = [nato_dict[letter] for letter in user_input]
+def generate_phonetic():
+    user_input = input("Enter a word: ").upper()
+    try:
+        phonetic_words = [nato_dict[letter] for letter in user_input]
+    except KeyError:
+        print('Sorry, Only letters in the alphabet please')
+        generate_phonetic()
+    else:
+        print(phonetic_words)
 
-print(phonetic_words)
+generate_phonetic()
