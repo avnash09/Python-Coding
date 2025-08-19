@@ -55,6 +55,7 @@ def save_entry():
         if is_ok:
             with open(dir_path+"data.txt", mode='a') as data_file:
                 data_file.write(f"{website_name} | {email_id} | {password}\n")
+            messagebox.showinfo(title="Success", message="Data  Store saved successfully.")
             #wipe the entries clean from the window
             website_entry.delete(0, END)
             password_entry.delete(0, END)
