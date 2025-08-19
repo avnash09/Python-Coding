@@ -51,7 +51,7 @@ def save_entry():
         print('Enter password')
         messagebox.showwarning(title="Error", message="Please enter a password.")
     else:
-        is_ok = messagebox.askokcancel(title=website_name, message=f"There are the details entered:\nEmail: {email_id}\nIs it ok to save?")
+        is_ok = messagebox.askokcancel(title=website_name, message=f"Wesbite: {website_name}\nEmail: {email_id}\nOk to Save?")
         if is_ok:
             with open(dir_path+"data.txt", mode='a') as data_file:
                 data_file.write(f"{website_name} | {email_id} | {password}\n")
