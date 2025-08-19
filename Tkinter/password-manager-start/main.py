@@ -1,11 +1,12 @@
 from tkinter import *
 from tkinter import messagebox
-import os, random, pyperclip, pandas as pd, pathlib, json
+import os, random, pyperclip, pandas as pd, json
 LETTERS = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
 NUMBERS = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
 SYMBOLS = ['!', '#', '$', '%', '&', '(', ')', '%', '+', '@']
 NO_OF_LETTERS = (8, 9, 10, 11, 12)
-DATA_STORE_HEADERS = ['Website', 'Email', 'Password']
+SPECIAL_WEBSITES = ['eBay']
+# DATA_STORE_HEADERS = ['Website', 'Email', 'Password']
 
 if os.name == 'nt':os.system('cls')
 else: os.system('clear')
@@ -41,12 +42,29 @@ def generate_password():
 def search():
 
     input_website = website_entry.get().strip().capitalize()
-    # data_file = dir_path+'data.txt'
+    for site in SPECIAL_WEBSITES:
+        if input_website.lower() == site.lower():
+            input_website = site
     data_file = dir_path+'data.json'
     password = ''
+    try:
+        data = pd.read_json(data_file)
+    except FileNotFoundError:
+        messagebox.showinfo(message="No Data File Found.")
+    else:
+        websites = data.columns.tolist()
+        if input_website in websites:
+            email = data[input_website].email
+            password = data[input_website].password
+            #Copy the pass onto the clipboard
+            pyperclip.copy(password)
+            messagebox.showinfo(title=f"{input_website} details", message=f"Email: {email}\nPassword: {password}\n")
+        else:
+            messagebox.showinfo(message="No details for the website exists.")
 
     ####################################################################################################################
     ############################## Intentionally commented this code ###################################################
+    # data_file = dir_path+'data.txt'
     # data = pd.read_csv(data_file, header=None, index_col=False, delimiter='|', names=DATA_STORE_HEADERS)
     # websites = [site.strip() for site in data.Website.unique()]
     # if input_website in websites:
@@ -70,6 +88,9 @@ def search():
 
 def save_entry():
     website_name = website_entry.get().strip().capitalize()
+    for site in SPECIAL_WEBSITES:
+        if website_name.lower() == site.lower():
+            website_name = site
     email_id = email_entry.get().strip()
     password = password_entry.get().strip()
 
