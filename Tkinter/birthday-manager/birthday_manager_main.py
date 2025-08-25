@@ -46,15 +46,15 @@ def save_entry(event=None):
 
         reset_fields()
 
+        with open("./Tkinter/birthday-manager/birthdays.csv", mode='w') as f:
+            f.write(f"{person}|{email}|{birthday_year}|{MONTHS_DICT[birthday_month][1]}|{birthday_date}")
+
 def reset_fields():
     name_entry.delete(0, END)
     year_dropdown.set('year')
     month_dropdown.set('month')
     date_dropdown.set('date')
     email_entry.delete(0, END)
-
-def get_name(event=None):
-    save_entry()
 
 def get_date(event):
     global birthday_date
