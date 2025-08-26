@@ -84,6 +84,88 @@ def create_json_file():
             json.dump(data, data_file, indent=4)
         print("New data added successfully!")
 
+def custom_messagebox(person):
+    custom_window = Tk()
+    custom_window.title('')
+    custom_window.config(width=100, height=100, padx=20, pady=20)
+    
+    message_label = Label(custom_window, text="Entry exists", font=(('',12,'bold')))
+    message_label.grid(row=1, column=1, columnspan=3)
+
+    person_details = show_data(person)
+
+    detail_label = Label(custom_window, text=person_details)
+    detail_label.grid(row=2, column=2, padx=10, pady=10)
+
+    def update_email():
+        email_window = Tk()
+        email_window.title("Update Email ID")
+        email_window.config(width=50, height=50, padx=20, pady=20)
+
+        email_label = Label(email_window, text="New Email ID")
+        email_label.pack(padx=10, pady=5)
+
+        email_entry = Entry(email_window, width=20)
+        email_entry.pack(padx=10, pady=5)
+
+        def update_email_data():
+            # global person_email
+            new_email = email_entry.get().strip()
+
+            if new_email == '' or '@' not in new_email or not new_email.endswith('.com'):
+                messagebox.showerror(title='Error', message="Invalid email ID")
+            else:
+                print(person)
+                print(f"New Email: {new_email}")
+                # print(f"Birthday: {birthday_date}-{MONTHS_DICT[birthday_month][1]}-{birthday_year}")
+
+                with open(f"./Tkinter/birthday-manager/{json_filename}", mode='r') as data_file:
+                    data = json.load(data_file)
+                    data[person]['email'] = new_email
+                
+                with open(f"./Tkinter/birthday-manager/{json_filename}", mode='w') as data_file:
+                    json.dump(data, data_file, indent=4)
+                    is_ok = messagebox.showinfo(title='Success', message=f"Data Updated\nNew Email: {new_email}")
+                    if is_ok:
+                        email_window.destroy()
+                        custom_window.destroy()
+                        print("Email updated.")
+
+        update_button = Button(email_window, text="Update", command=update_email_data)
+        update_button.pack(padx=10, pady=5)
+
+    def update_dob():
+        print('DOB updated')
+
+    def click_update():
+        print('Update clicked')
+        replace_button.destroy()
+        # custom_window.destroy()
+        email_button = Button(custom_window, text="Update Email", command=update_email)
+        email_button.grid(row=3, column=3, pady=5, padx=10)
+
+        dob_button = Button(custom_window, text="Update DOB", command=update_dob)
+        dob_button.grid(row=4, column=3, pady=5, padx=10)
+
+    def click_ok():
+        print('Ok clicked')
+        custom_window.destroy()
+
+    def click_replace():
+        print('Replace clicked')
+        # custom_window.destroy()
+
+    update_button = Button(custom_window, text="Update", width=7, relief="raised", command=click_update)
+    update_button.grid(row=3, column=1, pady=20, padx=10)
+
+    ok_button = Button(custom_window, text="Ok", width=7, relief="raised", command=click_ok)
+    ok_button.grid(row=3, column=2, pady=20, padx=10)
+
+    replace_button = Button(custom_window, text="Replace", width=7, relief="raised", command=click_replace)
+    replace_button.grid(row=3, column=3, pady=20, padx=10)
+
+    custom_window.mainloop()
+
 def show_data(person=''):
     df = pd.read_json(f"./Tkinter/birthday-manager/{json_filename}")
     bday = df[person]['birthday']
@@ -94,16 +176,19 @@ def show_data(person=''):
 # show_data()
 
 def search_entry():
-    global person_name, person_email
-    person = 'Avinash'
-    df = pd.read_json(f"./Tkinter/birthday-manager/{json_filename}")
-    # print(df.columns)
+    # global person_name, person_email
+    person = name_entry.get().strip().title()
+    if person:
+        df = pd.read_json(f"./Tkinter/birthday-manager/{json_filename}")
+        # print(df.columns)
 
-    if person in df.columns.to_list():
-        print(f"{person} already exists")
-        # messagebox.ask(message="Do you want to update the entry?")
-        # show_data(person)
-        # custom_messagebox(person)
+        if person in df.columns.to_list():
+            print(f"{person} already exists")
+            # messagebox.ask(message="Do you want to update the entry?")
+            # show_data(person)
+            custom_messagebox(person)
+    else:
+        messagebox.showerror(title='Error', message="Person name missing")
 # search_entry()
 
 def get_date(event):
@@ -183,9 +268,9 @@ canvas.grid(row=1, column=1, columnspan=6, padx=10)
 name_label = Label(text="Name: ", width=10, anchor='e')
 name_label.grid(row=2, column=1)
 
-name_entry = Entry(width=35)
+name_entry = Entry(width=25)
 name_entry.focus()
-name_entry.grid(row=2, column=2, columnspan=6, pady=5, sticky='w')
+name_entry.grid(row=2, column=2, columnspan=2, pady=5, sticky='ew')
 
 birthday_label = Label(text='Birthday: ', width=10, anchor='e')
 birthday_label.grid(row=3, column=1, pady=5)
@@ -211,9 +296,12 @@ email_label.grid(row=4, column=1)
 email_entry = Entry(width=35)
 email_entry.grid(row=4, column=2, columnspan=6, pady=5, sticky='w')
 
-save_button = Button(text="Save", width=9)#, command=save_entry)
-save_button.grid(row=5, column=2, columnspan=3, pady=5)
+save_button = Button(text="Save", width=9, command=save_entry)
+save_button.grid(row=5, column=2, columnspan=3, pady=5, padx=5)
 window.bind("<Return>", lambda event: save_entry())
+
+search_button = Button(window, text="Search", width=6, command=search_entry)
+search_button.grid(row=2, column=4, columnspan=2)#, pady=5, padx=5, sticky='w')
 
 window.mainloop()
 
