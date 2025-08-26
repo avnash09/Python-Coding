@@ -224,10 +224,10 @@ def is_leap_year(year_input) -> bool:
     except:
         print('Unknown error.')
     
-def get_valid_date(year='', month='', date=''):
-    date = birthday_date
-    month = birthday_month
-    year = birthday_year
+def get_valid_date(year=birthday_date, month=birthday_month, date=birthday_year):
+    # date = birthday_date
+    # month = birthday_month
+    # year = birthday_year
 
     print(f"Date: {date}, Type: {type(date)}")
     print(f"Month: {month}, Type: {type(month)}")
@@ -248,8 +248,8 @@ def get_valid_date(year='', month='', date=''):
     
     date_dropdown.set('')
     date_dropdown.config(values=date_range)
-    if birthday_date.isnumeric() and int(birthday_date) in date_range:
-        date_dropdown.set(birthday_date)
+    if date.isnumeric() and int(date) in date_range:
+        date_dropdown.set(date)
 
 # ==============================================================================================
 
