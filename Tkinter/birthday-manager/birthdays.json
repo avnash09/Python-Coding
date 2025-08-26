@@ -22,5 +22,29 @@
             "May",
             "23"
         ]
+    },
+    "Sipra": {
+        "email": "sipra@gmail.com",
+        "birthday": [
+            "1989",
+            "October",
+            "31"
+        ]
+    },
+    "Amulya": {
+        "email": "amulya@gmail.com",
+        "birthday": [
+            "1980",
+            "Mar",
+            "5"
+        ]
+    },
+    "Binay": {
+        "email": "binay@gmail.com",
+        "birthday": [
+            "1988",
+            "Sep",
+            "30"
+        ]
     }
 }

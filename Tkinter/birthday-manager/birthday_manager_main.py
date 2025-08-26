@@ -135,6 +135,61 @@ def custom_messagebox(person):
         update_button.pack(padx=10, pady=5)
 
     def update_dob():
+
+        dob_window = Tk()
+        dob_window.title("Update DoB")
+        dob_window.config(width=50, height=50, padx=20, pady=20)
+
+        dob_label = Label(dob_window, text="Date of Birth")
+        dob_label.grid(row=1, column=2, pady=10, padx=5)
+
+        upd_date_dropdown = ttk.Combobox(dob_window, values='', width=7, state='readonly')
+        upd_date_dropdown.set('date')
+        upd_date_dropdown.custom_name = 'year_dropdown'
+        upd_date_dropdown.grid(row=2, column=3, sticky='w', padx=5, pady=10)
+        upd_date_dropdown.bind("<<ComboboxSelected>>", get_date)
+
+        upd_month_dropdown = ttk.Combobox(dob_window, values=MONTHS, width=7, state='readonly')
+        upd_month_dropdown.set('month')
+        upd_month_dropdown.custom_name = 'year_dropdown'
+        upd_month_dropdown.grid(row=2, column=2, sticky='w', padx=5, pady=10)
+        upd_month_dropdown.bind("<<ComboboxSelected>>", lambda event: get_month(event, upd_date_dropdown))
+
+        upd_year_dropdown = ttk.Combobox(dob_window, values=YEARS, width=7, state='readonly')
+        upd_year_dropdown.set("year")
+        upd_year_dropdown.custom_name = 'year_dropdown'
+        upd_year_dropdown.grid(row=2, column=1, sticky='w', padx=5, pady=10)
+        upd_year_dropdown.bind("<<ComboboxSelected>>", lambda event: get_year(event, upd_date_dropdown))
+
+        def update_dob_data():
+            date = upd_date_dropdown.get().strip()
+            month = upd_month_dropdown.get().strip()
+            year = upd_year_dropdown.get().strip()
+
+            if date == '' or month == '' or year == '':
+                messagebox.showerror(title="Error", message="Invalid date")
+            else:
+                new_dob = [year, month, date]
+                print(person)
+                print(f'New DoB: {new_dob}')
+
+                with open(f"./Tkinter/birthday-manager/{json_filename}", mode='r') as data_file:
+                    data = json.load(data_file)
+                    data[person]['birthday'] = new_dob
+
+                with open(f"./Tkinter/birthday-manager/{json_filename}", mode='w') as date_file:
+                    json.dump(data, date_file, indent=4)
+                    dob_dt = dt.datetime.strptime(f"{year}-{month}-{date}", '%Y-%b-%d')
+                    formatted_dob = dt.datetime.strftime(dob_dt, '%d-%b-%Y')
+                    is_ok = messagebox.showinfo(title='Success', message=f"Data Updated\nNew DoB: {formatted_dob}")
+                    if is_ok:
+                        dob_window.destroy()
+                        custom_window.destroy()
+                        print("DoB updated.")
+
+        update_button = Button(dob_window, text="Update", command=update_dob_data)
+        update_button.grid(row=3, column=2, padx=10, pady=5)
+
         print('DOB updated')
 
     def click_update():
@@ -144,7 +199,7 @@ def custom_messagebox(person):
         email_button = Button(custom_window, text="Update Email", command=update_email)
         email_button.grid(row=3, column=3, pady=5, padx=10)
 
-        dob_button = Button(custom_window, text="Update DOB", command=update_dob)
+        dob_button = Button(custom_window, text="Update DoB", command=update_dob)
         dob_button.grid(row=4, column=3, pady=5, padx=10)
 
     def click_ok():
@@ -187,28 +242,30 @@ def search_entry():
             # messagebox.ask(message="Do you want to update the entry?")
             # show_data(person)
             custom_messagebox(person)
+        else:
+            messagebox.showinfo(message="Person details not found")
     else:
         messagebox.showerror(title='Error', message="Person name missing")
 # search_entry()
 
 def get_date(event):
     global birthday_date
-    print('inside get_date: ', date_dropdown.get()) 
+    print('inside get_date: ', event.widget.get()) 
     birthday_date = date_dropdown.get()
     # month_dropdown.config(values=select_months(birthday_date))
 
-def get_month(event):
+def get_month(event, related_date_dropdown):
     global birthday_month
     print('inside get_month: ',month_dropdown.get()) 
-    birthday_month = month_dropdown.get()
-    get_valid_date()
+    birthday_month = event.widget.get()
+    get_valid_date(event, related_date_dropdown)
 
-def get_year(event):
+def get_year(event, related_date_dropdown):
     global birthday_year
     print('inside get_year:', year_dropdown.get())
-    birthday_year = year_dropdown.get()
+    birthday_year = event.widget.get()
     print(f"Birthday year {birthday_year}")
-    get_valid_date()
+    get_valid_date(event, related_date_dropdown)
 
 def is_leap_year(year_input) -> bool:
     try:
@@ -224,11 +281,13 @@ def is_leap_year(year_input) -> bool:
     except:
         print('Unknown error.')
     
-def get_valid_date(year=birthday_date, month=birthday_month, date=birthday_year):
-    # date = birthday_date
-    # month = birthday_month
-    # year = birthday_year
+def get_valid_date(event, related_date_dropdown):
+    date = birthday_date
+    month = birthday_month
+    year = birthday_year
 
+    print(event.widget, event.widget.get())
+    print(event.widget.custom_name)
     print(f"Date: {date}, Type: {type(date)}")
     print(f"Month: {month}, Type: {type(month)}")
     print(f"Year: {year}, Type: {type(year)}")
@@ -246,10 +305,10 @@ def get_valid_date(year=birthday_date, month=birthday_month, date=birthday_year)
         # print('Else statement')
         date_range = [dt for dt in range(1, 32)]    #last date: 31
     
-    date_dropdown.set('')
-    date_dropdown.config(values=date_range)
+    related_date_dropdown.set('')
+    related_date_dropdown.config(values=date_range)
     if date.isnumeric() and int(date) in date_range:
-        date_dropdown.set(date)
+        related_date_dropdown.set(date)
 
 # ==============================================================================================
 
@@ -277,16 +336,19 @@ birthday_label.grid(row=3, column=1, pady=5)
 
 year_dropdown = ttk.Combobox(values=YEARS, width=7, state='readonly')
 year_dropdown.set("year")
+year_dropdown.custom_name = 'year_dropdown'
 year_dropdown.grid(row=3, column=2, sticky='w')
-year_dropdown.bind("<<ComboboxSelected>>", get_year)
+year_dropdown.bind("<<ComboboxSelected>>", lambda event: get_year(event, date_dropdown))
     
 month_dropdown = ttk.Combobox(values=MONTHS, width=7, state='readonly')
 month_dropdown.set("month")
+month_dropdown.custom_name = 'month_dropdown'
 month_dropdown.grid(row=3, column=3, sticky='w')
-month_dropdown.bind("<<ComboboxSelected>>", get_month)
+month_dropdown.bind("<<ComboboxSelected>>", lambda event: get_month(event, date_dropdown))
 
 date_dropdown = ttk.Combobox(values='', width=7, state='readonly')
 date_dropdown.set("date")
+date_dropdown.custom_name = 'date_dropdown'
 date_dropdown.grid(row=3, column=4, sticky='w')
 date_dropdown.bind("<<ComboboxSelected>>", get_date)
 
