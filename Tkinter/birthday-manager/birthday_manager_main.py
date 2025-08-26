@@ -1,10 +1,12 @@
 from tkinter import *
 from tkinter import messagebox, ttk
-import os, random, datetime as dt, re
+import os, random, datetime as dt, re, json
 
+person_name = ''
+person_email = ''
 birthday_date = ''
 birthday_month = ''
-birthday_year = 1900
+birthday_year = ''
 
 DATES = [i for i in range(1,32)]
 MONTHS = [
@@ -14,7 +16,9 @@ MONTHS = [
 MONTHS_DICT = {month : (index+1, month[:3]) for index, month in enumerate(MONTHS)}
 YEARS = [year for year in range(1980, dt.datetime.now().year + 1)]
 
-filename = 'birthday_manager.png'
+image_filename = 'birthday_manager.png'
+csv_filename = 'birthdays.csv'
+json_filename = 'birthdays.json'
 
 def clear_terminal():
     if os.name == 'nt': os.system('cls')
@@ -29,25 +33,30 @@ label = Label(text="Welcome to Birthday Manager")
 # label.grid(row=0, column=0, columnspan=9)
 
 canvas = Canvas(width=300, height=240)
-bday_mngr_image = PhotoImage(file=f"./Tkinter/birthday-manager/{filename}")
+bday_mngr_image = PhotoImage(file=f"./Tkinter/birthday-manager/{image_filename}")
 canvas.create_image(150, 120, image=bday_mngr_image)
 canvas.grid(row=1, column=1, columnspan=6, padx=10)
 
 def save_entry(event=None):
     
-    if birthday_date == '' or birthday_month == '' or birthday_year == '':
+    global person_name, person_email, birthday_date, birthday_month, birthday_year
+    person_name = name_entry.get().strip().title()
+    person_email = email_entry.get().strip()
+    
+    if person_name == '':
+        messagebox.showerror(title='Error', message="Person name missing")
+    elif birthday_date == '' or birthday_month == '' or birthday_year == '':
         messagebox.showerror(title="Error", message="Invalid date")
+    elif person_email == '' or '@' not in person_email or not person_email.endswith('.com'):
+        messagebox.showerror(title='Error', message="Invalid email ID")
     else:
-        person = name_entry.get().strip().title()
-        print(person)
-        email = email_entry.get().strip()
-        print(email)
+        print(person_name)
+        print(person_email)
         print(f"Birthday: {birthday_date}-{MONTHS_DICT[birthday_month][1]}-{birthday_year}")
 
         reset_fields()
-
-        with open("./Tkinter/birthday-manager/birthdays.csv", mode='w') as f:
-            f.write(f"{person}|{email}|{birthday_year}|{MONTHS_DICT[birthday_month][1]}|{birthday_date}")
+        # create_csv_file()
+        create_json_file()
 
 def reset_fields():
     name_entry.delete(0, END)
@@ -55,6 +64,34 @@ def reset_fields():
     month_dropdown.set('month')
     date_dropdown.set('date')
     email_entry.delete(0, END)
+
+def create_csv_file():
+    
+    with open(f"./Tkinter/birthday-manager/{csv_filename}", mode='w') as f:
+            f.write(f"{person_name}|{person_email}|{birthday_year}|{MONTHS_DICT[birthday_month][1]}|{birthday_date}")
+
+def create_json_file():
+    
+    new_entry = {
+        'name': person_name,
+        'email': person_email,
+        'birthday': {
+            'year': birthday_year,
+            'month': birthday_month,
+            'date': birthday_date
+        } 
+    }
+
+    try:
+        with open(f"./Tkinter/birthday-manager/{json_filename}", mode='r') as data_file:
+            data = json.read(data_file)
+    except FileNotFoundError:
+        data = new_entry
+    else:
+        data.update(new_entry)
+    finally:
+        with open(f"./Tkinter/birthday-manager/{json_filename}", mode='w') as data_file:
+            json.dump(data, data_file, indent=4)
 
 def get_date(event):
     global birthday_date
@@ -111,7 +148,13 @@ def get_valid_date(year='', month='', date=''):
         # print('Else statement')
         date_range = [dt for dt in range(1, 32)]    #last date: 31
 
-    date_dropdown.delete(0, END)
+    print('+++++++++++++++++++++++')
+    print(date_range)
+    print(birthday_date.isnumeric())
+    print(29 in date_range)
+    print('+++++++++++++++++++++++')
+    # date_dropdown.delete(0, END)
+    date_dropdown.set('')
     date_dropdown.config(values=date_range)
     if birthday_date.isnumeric() and int(birthday_date) in date_range:
         date_dropdown.set(birthday_date)
@@ -129,32 +172,32 @@ name_entry.grid(row=2, column=2, columnspan=6, pady=5, sticky='w')
 birthday_label = Label(text='Birthday: ', width=10, anchor='e')
 birthday_label.grid(row=3, column=1, pady=5)
 
-date_dropdown = ttk.Combobox(values='', width=7, state='readonly')
-date_dropdown.set("date")
-date_dropdown.grid(row=3, column=4)
-date_dropdown.bind("<<ComboboxSelected>>", get_date)
+year_dropdown = ttk.Combobox(values=YEARS, width=7, state='readonly')
+year_dropdown.set("year")
+year_dropdown.grid(row=3, column=2, sticky='w')
+year_dropdown.bind("<<ComboboxSelected>>", get_year)
 
 delimiter_label1 = Label(text="/", width=1)
 # delimiter_label1.grid(row=3, column=3, sticky='ew')
     
 month_dropdown = ttk.Combobox(values=MONTHS, width=7, state='readonly')
 month_dropdown.set("month")
-month_dropdown.grid(row=3, column=3)
+month_dropdown.grid(row=3, column=3, sticky='w')
 month_dropdown.bind("<<ComboboxSelected>>", get_month)
+
+date_dropdown = ttk.Combobox(values='', width=7, state='readonly')
+date_dropdown.set("date")
+date_dropdown.grid(row=3, column=4)#, sticky='w')
+date_dropdown.bind("<<ComboboxSelected>>", get_date)
 
 delimiter_label2 = Label(text="/", width=1)
 # delimiter_label2.grid(row=3, column=5, sticky='ew')
-
-year_dropdown = ttk.Combobox(values=YEARS, width=7, state='readonly')
-year_dropdown.set("year")
-year_dropdown.grid(row=3, column=2)
-year_dropdown.bind("<<ComboboxSelected>>", get_year)
 
 email_label = Label(text="Email ID: ",width=10, anchor='e')
 email_label.grid(row=4, column=1)
 
 email_entry = Entry(width=35)
-email_entry.grid(row=4, column=2, columnspan=6, pady=5)
+email_entry.grid(row=4, column=2, columnspan=6, pady=5, sticky='w')
 
 save_button = Button(text="Save", width=9, command=save_entry)
 save_button.grid(row=5, column=2, columnspan=3, pady=5)
