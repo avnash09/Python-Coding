@@ -1,6 +1,6 @@
 from tkinter import *
 from tkinter import messagebox, ttk
-import os, random, datetime as dt, re, json
+import os, random, datetime as dt, re, json, pandas as pd
 
 person_name = ''
 person_email = ''
@@ -25,18 +25,6 @@ def clear_terminal():
     else: os.system('clear')
 clear_terminal()
 
-window = Tk()
-window.title("Birthday Manager")
-window.config(width=600, height=600, padx=10, pady=10)
-
-label = Label(text="Welcome to Birthday Manager")
-# label.grid(row=0, column=0, columnspan=9)
-
-canvas = Canvas(width=300, height=240)
-bday_mngr_image = PhotoImage(file=f"./Tkinter/birthday-manager/{image_filename}")
-canvas.create_image(150, 120, image=bday_mngr_image)
-canvas.grid(row=1, column=1, columnspan=6, padx=10)
-
 def save_entry(event=None):
     
     global person_name, person_email, birthday_date, birthday_month, birthday_year
@@ -60,6 +48,7 @@ def save_entry(event=None):
 
 def reset_fields():
     name_entry.delete(0, END)
+    name_entry.focus()
     year_dropdown.set('year')
     month_dropdown.set('month')
     date_dropdown.set('date')
@@ -73,25 +62,49 @@ def create_csv_file():
 def create_json_file():
     
     new_entry = {
-        'name': person_name,
-        'email': person_email,
-        'birthday': {
-            'year': birthday_year,
-            'month': birthday_month,
-            'date': birthday_date
-        } 
+        person_name: {
+            'email': person_email,
+            'birthday': (birthday_year, MONTHS_DICT[birthday_month][1], birthday_date)
+        }
     }
 
     try:
         with open(f"./Tkinter/birthday-manager/{json_filename}", mode='r') as data_file:
-            data = json.read(data_file)
+            data = json.load(data_file)
+    except json.JSONDecodeError:
+        print("Invalid JSON format.")
+        data = new_entry
     except FileNotFoundError:
+        print("No data file exists.")
         data = new_entry
     else:
         data.update(new_entry)
     finally:
         with open(f"./Tkinter/birthday-manager/{json_filename}", mode='w') as data_file:
             json.dump(data, data_file, indent=4)
+        print("New data added successfully!")
+
+def show_data(person=''):
+    df = pd.read_json(f"./Tkinter/birthday-manager/{json_filename}")
+    bday = df[person]['birthday']
+    bday_dt = dt.datetime.strptime(f"{bday[0]}-{bday[1]}-{bday[2]}", '%Y-%b-%d')
+    formatted_bday = dt.datetime.strftime(bday_dt, '%d-%b-%Y')
+    formatted_output = f"Name: {person}\nDOB: {formatted_bday}\nEmail: {df[person]['email']}"
+    return (formatted_output)
+# show_data()
+
+def search_entry():
+    global person_name, person_email
+    person = 'Avinash'
+    df = pd.read_json(f"./Tkinter/birthday-manager/{json_filename}")
+    # print(df.columns)
+
+    if person in df.columns.to_list():
+        print(f"{person} already exists")
+        # messagebox.ask(message="Do you want to update the entry?")
+        # show_data(person)
+        # custom_messagebox(person)
+# search_entry()
 
 def get_date(event):
     global birthday_date
@@ -147,20 +160,25 @@ def get_valid_date(year='', month='', date=''):
     else:
         # print('Else statement')
         date_range = [dt for dt in range(1, 32)]    #last date: 31
-
-    print('+++++++++++++++++++++++')
-    print(date_range)
-    print(birthday_date.isnumeric())
-    print(29 in date_range)
-    print('+++++++++++++++++++++++')
-    # date_dropdown.delete(0, END)
+    
     date_dropdown.set('')
     date_dropdown.config(values=date_range)
     if birthday_date.isnumeric() and int(birthday_date) in date_range:
         date_dropdown.set(birthday_date)
 
-label = Label( text="")
-# label.grid(row=4, column=0)
+# ==============================================================================================
+
+window = Tk()
+window.title("Birthday Manager")
+window.config(width=600, height=600, padx=10, pady=10)
+
+label = Label(text="Welcome to Birthday Manager")
+# label.grid(row=0, column=0, columnspan=9)
+
+canvas = Canvas(width=300, height=240)
+bday_mngr_image = PhotoImage(file=f"./Tkinter/birthday-manager/{image_filename}")
+canvas.create_image(150, 120, image=bday_mngr_image)
+canvas.grid(row=1, column=1, columnspan=6, padx=10)
 
 name_label = Label(text="Name: ", width=10, anchor='e')
 name_label.grid(row=2, column=1)
@@ -176,9 +194,6 @@ year_dropdown = ttk.Combobox(values=YEARS, width=7, state='readonly')
 year_dropdown.set("year")
 year_dropdown.grid(row=3, column=2, sticky='w')
 year_dropdown.bind("<<ComboboxSelected>>", get_year)
-
-delimiter_label1 = Label(text="/", width=1)
-# delimiter_label1.grid(row=3, column=3, sticky='ew')
     
 month_dropdown = ttk.Combobox(values=MONTHS, width=7, state='readonly')
 month_dropdown.set("month")
@@ -187,11 +202,8 @@ month_dropdown.bind("<<ComboboxSelected>>", get_month)
 
 date_dropdown = ttk.Combobox(values='', width=7, state='readonly')
 date_dropdown.set("date")
-date_dropdown.grid(row=3, column=4)#, sticky='w')
+date_dropdown.grid(row=3, column=4, sticky='w')
 date_dropdown.bind("<<ComboboxSelected>>", get_date)
-
-delimiter_label2 = Label(text="/", width=1)
-# delimiter_label2.grid(row=3, column=5, sticky='ew')
 
 email_label = Label(text="Email ID: ",width=10, anchor='e')
 email_label.grid(row=4, column=1)
@@ -199,9 +211,10 @@ email_label.grid(row=4, column=1)
 email_entry = Entry(width=35)
 email_entry.grid(row=4, column=2, columnspan=6, pady=5, sticky='w')
 
-save_button = Button(text="Save", width=9, command=save_entry)
+save_button = Button(text="Save", width=9)#, command=save_entry)
 save_button.grid(row=5, column=2, columnspan=3, pady=5)
 window.bind("<Return>", lambda event: save_entry())
 
-
 window.mainloop()
+
+# ==============================================================================================

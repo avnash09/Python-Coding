@@ -1,1 +1,26 @@
-{"name": "Avinash", "email": "avi@gmail.com", "birthday": {"year": "1980", "month": "January", "date": "1"}}
+{
+    "Avinash": {
+        "email": "avinash@gmail.com",
+        "birthday": [
+            "1982",
+            "Jun",
+            "8"
+        ]
+    },
+    "Annie": {
+        "email": "annie@gmail.com",
+        "birthday": [
+            "1986",
+            "Sep",
+            "25"
+        ]
+    },
+    "Pintu": {
+        "email": "pintu@gmail.com",
+        "birthday": [
+            "2005",
+            "May",
+            "23"
+        ]
+    }
+}
