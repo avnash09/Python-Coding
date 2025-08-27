@@ -195,7 +195,12 @@ def custom_messagebox(person):
     def click_update():
         print('Update clicked')
         replace_button.destroy()
+        ok_button.destroy()
         # custom_window.destroy()
+
+        cancel_button = Button(custom_window, text='Cancel', width=7, relief="raised", command=click_ok)
+        cancel_button.grid(row=3, column=2, pady=20, padx=10)
+
         email_button = Button(custom_window, text="Update Email", command=update_email)
         email_button.grid(row=3, column=3, pady=5, padx=10)
 
@@ -213,7 +218,7 @@ def custom_messagebox(person):
     update_button = Button(custom_window, text="Update", width=7, relief="raised", command=click_update)
     update_button.grid(row=3, column=1, pady=20, padx=10)
 
-    ok_button = Button(custom_window, text="Ok", width=7, relief="raised", command=click_ok)
+    ok_button = Button(custom_window, text="OK", width=7, relief="raised", command=click_ok)
     ok_button.grid(row=3, column=2, pady=20, padx=10)
 
     replace_button = Button(custom_window, text="Replace", width=7, relief="raised", command=click_replace)
@@ -224,10 +229,18 @@ def custom_messagebox(person):
 def show_data(person=''):
     df = pd.read_json(f"./Tkinter/birthday-manager/{json_filename}")
     bday = df[person]['birthday']
-    bday_dt = dt.datetime.strptime(f"{bday[0]}-{bday[1]}-{bday[2]}", '%Y-%b-%d')
-    formatted_bday = dt.datetime.strftime(bday_dt, '%d-%b-%Y')
-    formatted_output = f"Name: {person}\nDOB: {formatted_bday}\nEmail: {df[person]['email']}"
-    return (formatted_output)
+    try:
+        bday_dt = dt.datetime.strptime(f"{bday[0]}-{bday[1]}-{bday[2]}", '%Y-%b-%d')
+    except ValueError:
+        try:
+            bday_dt = dt.datetime.strptime(f"{bday[0]}-{bday[1]}-{bday[2]}", '%Y-%B-%d')
+        except ValueError:
+            print('Unknown Error.')
+            return None
+    finally:
+        formatted_bday = dt.datetime.strftime(bday_dt, '%d-%b-%Y')
+        formatted_output = f"Name: {person}\nDOB: {formatted_bday}\nEmail: {df[person]['email']}"
+        return (formatted_output)
 # show_data()
 
 def search_entry():
