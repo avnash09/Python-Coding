@@ -14,7 +14,7 @@ MONTHS = [
     "July", "August", "September", "October", "November", "December"
 ]
 MONTHS_DICT = {month : (index+1, month[:3]) for index, month in enumerate(MONTHS)}
-YEARS = [year for year in range(1980, dt.datetime.now().year + 1)]
+YEARS = [year for year in range(dt.datetime.now().year + 1, 1970, -1)]
 
 image_filename = 'birthday_manager.png'
 csv_filename = 'birthdays.csv'
@@ -45,6 +45,9 @@ def save_entry(event=None):
         reset_fields()
         # create_csv_file()
         create_json_file()
+    
+    #Puts the cursor in the Name_entry field
+    name_entry.focus()
 
 def reset_fields():
     name_entry.delete(0, END)
@@ -198,7 +201,7 @@ def custom_messagebox(person):
         ok_button.destroy()
         # custom_window.destroy()
 
-        cancel_button = Button(custom_window, text='Cancel', width=7, relief="raised", command=click_ok)
+        cancel_button = Button(custom_window, text='Cancel', width=7, relief="raised", command=close_window)
         cancel_button.grid(row=3, column=2, pady=20, padx=10)
 
         email_button = Button(custom_window, text="Update Email", command=update_email)
@@ -207,8 +210,7 @@ def custom_messagebox(person):
         dob_button = Button(custom_window, text="Update DoB", command=update_dob)
         dob_button.grid(row=4, column=3, pady=5, padx=10)
 
-    def click_ok():
-        print('Ok clicked')
+    def close_window():
         custom_window.destroy()
 
     def click_replace():
@@ -218,7 +220,7 @@ def custom_messagebox(person):
     update_button = Button(custom_window, text="Update", width=7, relief="raised", command=click_update)
     update_button.grid(row=3, column=1, pady=20, padx=10)
 
-    ok_button = Button(custom_window, text="OK", width=7, relief="raised", command=click_ok)
+    ok_button = Button(custom_window, text="OK", width=7, relief="raised", command=close_window)
     ok_button.grid(row=3, column=2, pady=20, padx=10)
 
     replace_button = Button(custom_window, text="Replace", width=7, relief="raised", command=click_replace)
@@ -227,19 +229,23 @@ def custom_messagebox(person):
     custom_window.mainloop()
 
 def show_data(person=''):
-    df = pd.read_json(f"./Tkinter/birthday-manager/{json_filename}")
-    bday = df[person]['birthday']
     try:
-        bday_dt = dt.datetime.strptime(f"{bday[0]}-{bday[1]}-{bday[2]}", '%Y-%b-%d')
-    except ValueError:
+        df = pd.read_json(f"./Tkinter/birthday-manager/{json_filename}")
+        bday = df[person]['birthday']
+    except KeyError:
+        print("Key Error: No value for 'person' parameter")
+    else:
         try:
-            bday_dt = dt.datetime.strptime(f"{bday[0]}-{bday[1]}-{bday[2]}", '%Y-%B-%d')
+            bday_dt = dt.datetime.strptime(f"{bday[0]}-{bday[1]}-{bday[2]}", '%Y-%b-%d')
         except ValueError:
-            print('Unknown Error.')
-            return None
-    finally:
-        formatted_bday = dt.datetime.strftime(bday_dt, '%d-%b-%Y')
-        formatted_output = f"Name: {person}\nDOB: {formatted_bday}\nEmail: {df[person]['email']}"
+            try:
+                bday_dt = dt.datetime.strptime(f"{bday[0]}-{bday[1]}-{bday[2]}", '%Y-%B-%d')
+            except ValueError:
+                print(f'Unknown Error. Please check the date value for {person}')
+                return None
+        finally:
+            formatted_bday = dt.datetime.strftime(bday_dt, '%d-%b-%Y')
+            formatted_output = f"Name: {person}\nDOB: {formatted_bday}\nEmail: {df[person]['email']}"
         return (formatted_output)
 # show_data()
 
@@ -377,6 +383,7 @@ window.bind("<Return>", lambda event: save_entry())
 
 search_button = Button(window, text="Search", width=6, command=search_entry)
 search_button.grid(row=2, column=4, columnspan=2)#, pady=5, padx=5, sticky='w')
+search_button.bind("<Return>", lambda event: search_entry())
 
 window.mainloop()
 
