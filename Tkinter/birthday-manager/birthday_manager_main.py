@@ -1,6 +1,6 @@
 from tkinter import *
 from tkinter import messagebox, ttk
-import os, random, datetime as dt, re, json, pandas as pd
+import os, datetime as dt, json, pandas as pd
 
 person_name = ''
 person_email = ''
@@ -14,7 +14,7 @@ MONTHS = [
     "July", "August", "September", "October", "November", "December"
 ]
 MONTHS_DICT = {month : (index+1, month[:3]) for index, month in enumerate(MONTHS)}
-YEARS = [year for year in range(dt.datetime.now().year + 1, 1970, -1)]
+YEARS = [year for year in range(dt.datetime.now().year, 1950, -1)]
 
 image_filename = 'birthday_manager.png'
 csv_filename = 'birthdays.csv'
@@ -43,20 +43,26 @@ def save_entry(event=None):
     
     if person_name == '':
         messagebox.showerror(title='Error', message="Person name missing")
-    elif birthday_date == '' or birthday_month == '' or birthday_year == '':
+    elif (
+        (not birthday_date.isnumeric() or birthday_date == '') or 
+        (not birthday_date.isnumeric() or birthday_month == '') or 
+        (not birthday_date.isnumeric() or birthday_year == '')
+          ):
         messagebox.showerror(title="Error", message="Invalid date")
     elif person_email == '' or '@' not in person_email or not person_email.endswith('.com'):
         messagebox.showerror(title='Error', message="Invalid email ID")
     else:
-        print(person_name)
-        print(person_email)
-        print(f"Birthday: {birthday_date}-{MONTHS_DICT[birthday_month][1]}-{birthday_year}")
+        print(f"Name: {person_name}")
+        print(f"Email: {person_email}")
+        # print(f"Birthday: {birthday_date}-{MONTHS_DICT[birthday_month][1]}-{birthday_year}")
+        birthday = (birthday_year, birthday_month, birthday_date)
+        print(f"Birthday: {get_birthday_string(birthday_date=birthday)}")
 
         reset_fields()
+        save_json_data_file()
         # create_csv_file()
-        create_json_file()
     
-    #Puts the cursor in the Name_entry field
+    #Puts the cursor in the name_entry field
     name_entry.focus()
 
 def reset_fields():
@@ -72,12 +78,12 @@ def create_csv_file():
     with open(f"./Tkinter/birthday-manager/{csv_filename}", mode='w') as f:
             f.write(f"{person_name}|{person_email}|{birthday_year}|{MONTHS_DICT[birthday_month][1]}|{birthday_date}")
 
-def create_json_file():
+def save_json_data_file():
     
     new_entry = {
         person_name: {
             'email': person_email,
-            'birthday': (birthday_year, MONTHS_DICT[birthday_month][1], birthday_date)
+            'birthday': tuple([birthday_year, MONTHS_DICT[birthday_month][1], birthday_date])
         }
     }
 
@@ -95,7 +101,7 @@ def create_json_file():
     finally:
         with open(f"./Tkinter/birthday-manager/{json_filename}", mode='w') as data_file:
             json.dump(data, data_file, indent=4)
-        print("New data added successfully!")
+            messagebox.showinfo(title='Success', message="New data added successfully!")
 
 def custom_messagebox(person):
     custom_window = Tk()
@@ -104,8 +110,6 @@ def custom_messagebox(person):
     
     message_label = Label(custom_window, text="Entry exists", font=(('',12,'bold')))
     message_label.grid(row=1, column=1, columnspan=3)
-
-    # person_details = show_data(person)
     
     #read JSON file, get person's details
     data = read_json_file(json_filename)
@@ -211,7 +215,7 @@ def custom_messagebox(person):
 
     def click_update():
         print('Update clicked')
-        replace_button.destroy()
+        delete_button.destroy()
         ok_button.destroy()
         # custom_window.destroy()
 
@@ -227,9 +231,21 @@ def custom_messagebox(person):
     def close_window():
         custom_window.destroy()
 
-    def click_replace():
-        print('Replace clicked')
-        # custom_window.destroy()
+    def delete_entry():
+        print('Deleting entry')
+        print(f"Name: {person}\n{data[person]}")
+        person_details = f"Name: {person}\nDOB: {birthday_string}\nEmail: {data[person]['email']}"
+        confirm_delete = messagebox.askyesno(title='Remove', message=f"Deleting the below records\n\n{person_details}\n\nAre you sure?")
+        if confirm_delete:
+            data.pop(person)
+            # print(data)
+        custom_window.destroy()
+        name_entry.focus()
+
+        #reload data into JSON file after delete
+        with open(f"./Tkinter/birthday-manager/{json_filename}", mode='w') as data_file:
+            json.dump(data, data_file, indent=4)
+            messagebox.showinfo(title='Deleted', message='Records deleted.')
 
     update_button = Button(custom_window, text="Update", width=7, relief="raised", command=click_update)
     update_button.grid(row=3, column=1, pady=20, padx=10)
@@ -237,8 +253,8 @@ def custom_messagebox(person):
     ok_button = Button(custom_window, text="OK", width=7, relief="raised", command=close_window)
     ok_button.grid(row=3, column=2, pady=20, padx=10)
 
-    replace_button = Button(custom_window, text="Replace", width=7, relief="raised", command=click_replace)
-    replace_button.grid(row=3, column=3, pady=20, padx=10)
+    delete_button = Button(custom_window, text="Delete", width=7, relief="raised", command=delete_entry)
+    delete_button.grid(row=3, column=3, pady=20, padx=10)
 
     custom_window.mainloop()
 
@@ -280,53 +296,43 @@ def get_birthday_string(birthday_date):
             formatted_bday = dt.datetime.strftime(bday_dt, '%d-%b-%Y')
             formatted_output = f"Name: {person}\nDOB: {formatted_bday}\nEmail: {df[person]['email']}"
         return (formatted_output)
-# show_data()
 
 def search_entry():
-    # global person_name, person_email
     person = name_entry.get().strip().title()
     if person:
         df = pd.read_json(f"./Tkinter/birthday-manager/{json_filename}")
-        # print(df.columns)
 
         if person in df.columns.to_list():
             print(f"{person} already exists")
-            # messagebox.ask(message="Do you want to update the entry?")
-            # show_data(person)
             custom_messagebox(person)
         else:
             messagebox.showinfo(message="Person details not found")
     else:
         messagebox.showerror(title='Error', message="Person name missing")
-# search_entry()
+
+    name_entry.focus()
 
 def get_date(event):
     global birthday_date
-    print('inside get_date: ', event.widget.get()) 
-    birthday_date = date_dropdown.get()
-    # month_dropdown.config(values=select_months(birthday_date))
+    birthday_date = event.widget.get()
 
 def get_month(event, related_date_dropdown):
     global birthday_month
-    print('inside get_month: ',month_dropdown.get()) 
     birthday_month = event.widget.get()
     get_valid_date(event, related_date_dropdown)
 
 def get_year(event, related_date_dropdown):
     global birthday_year
-    print('inside get_year:', year_dropdown.get())
     birthday_year = event.widget.get()
-    print(f"Birthday year {birthday_year}")
     get_valid_date(event, related_date_dropdown)
+    # print('inside get_year:', year_dropdown.get())
 
 def is_leap_year(year_input) -> bool:
     try:
         year = int(year_input)
         if year % 4 == 0 and (year % 100 != 0 or year % 400 == 0):
-            # print('inside leap_year(): Leap Year')
             return True
         else:
-            # print('inside leap_year(): not a leap year')
             return False
     except TypeError:
         print(f"Unexpected value of year = {year} inside is_leap_year().")
@@ -337,11 +343,6 @@ def get_valid_date(event, related_date_dropdown):
     date = birthday_date
     month = birthday_month
     year = birthday_year
-
-    # print(event.widget, event.widget.get())
-    # print(f"Date: {date}, Type: {type(date)}")
-    # print(f"Month: {month}, Type: {type(month)}")
-    # print(f"Year: {year}, Type: {type(year)}")
     
     if month == 'February' and is_leap_year(year): 
         date_range = [dt for dt in range(1, 30)]    #last date: 29
@@ -353,7 +354,6 @@ def get_valid_date(event, related_date_dropdown):
         date_range = [dt for dt in range(1, 31)]    #last date: 30
 
     else:
-        # print('Else statement')
         date_range = [dt for dt in range(1, 32)]    #last date: 31
     
     related_date_dropdown.set('')
@@ -366,9 +366,6 @@ def get_valid_date(event, related_date_dropdown):
 window = Tk()
 window.title("Birthday Manager")
 window.config(width=600, height=600, padx=10, pady=10)
-
-label = Label(text="Welcome to Birthday Manager")
-# label.grid(row=0, column=0, columnspan=9)
 
 canvas = Canvas(width=300, height=240)
 bday_mngr_image = PhotoImage(file=f"./Tkinter/birthday-manager/{image_filename}")
