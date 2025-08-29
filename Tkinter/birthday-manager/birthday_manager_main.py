@@ -25,6 +25,16 @@ def clear_terminal():
     else: os.system('clear')
 clear_terminal()
 
+def read_json_file(path="./Tkinter/birthday-manager/", filename=json_filename):
+    '''
+    Function accepts a JSON file (Only file name)
+    Default path: ./Tkinter/birthday-manager/
+    '''
+    filepath = f"./Tkinter/birthday-manager/{filename}"
+    with open(filepath, mode='r') as data_file:
+        df = json.load(data_file)
+        return df
+
 def save_entry(event=None):
     
     global person_name, person_email, birthday_date, birthday_month, birthday_year
@@ -95,7 +105,14 @@ def custom_messagebox(person):
     message_label = Label(custom_window, text="Entry exists", font=(('',12,'bold')))
     message_label.grid(row=1, column=1, columnspan=3)
 
-    person_details = show_data(person)
+    # person_details = show_data(person)
+    
+    #read JSON file, get person's details
+    data = read_json_file(json_filename)
+
+    birthday_date = data[person]['birthday']
+    birthday_string = get_birthday_string(birthday_date)
+    person_details = f"Name: {person}\nDOB: {birthday_string}\nEmail: {data[person]['email']}"
 
     detail_label = Label(custom_window, text=person_details)
     detail_label.grid(row=2, column=2, padx=10, pady=10)
@@ -179,9 +196,9 @@ def custom_messagebox(person):
 
                 with open(f"./Tkinter/birthday-manager/{json_filename}", mode='w') as date_file:
                     json.dump(data, date_file, indent=4)
-                    dob_dt = dt.datetime.strptime(f"{year}-{month}-{date}", '%Y-%b-%d')
-                    formatted_dob = dt.datetime.strftime(dob_dt, '%d-%b-%Y')
-                    is_ok = messagebox.showinfo(title='Success', message=f"Data Updated\nNew DoB: {formatted_dob}")
+                    # dob_dt = dt.datetime.strptime(f"{year}-{month}-{date}", '%Y-%b-%d')
+                    dob_string = get_birthday_string(new_dob)
+                    is_ok = messagebox.showinfo(title='Success', message=f"Data Updated\nNew DoB: {dob_string}")
                     if is_ok:
                         dob_window.destroy()
                         custom_window.destroy()
@@ -225,7 +242,26 @@ def custom_messagebox(person):
 
     custom_window.mainloop()
 
-def show_data(person=''):
+def get_birthday_string(birthday_date):
+    '''
+    This functions accepts DoB in the form of a List or Tuple [year, month, date]
+    '''
+    year, month, date = birthday_date   #list unpacking
+    try:
+            bday_dt = dt.datetime.strptime(f"{year}-{month}-{date}", '%Y-%b-%d')
+    except ValueError:
+        try:
+            bday_dt = dt.datetime.strptime(f"{year}-{month}-{date}", '%Y-%B-%d')
+        except ValueError:
+            print(f'Error. Empty "birthday_date".')
+            return None
+    finally:
+        birthday_string = dt.datetime.strftime(bday_dt, '%d-%b-%Y')
+
+    return birthday_string
+
+
+#def show_data(person=''):
     try:
         df = pd.read_json(f"./Tkinter/birthday-manager/{json_filename}")
         bday = df[person]['birthday']
@@ -302,11 +338,10 @@ def get_valid_date(event, related_date_dropdown):
     month = birthday_month
     year = birthday_year
 
-    print(event.widget, event.widget.get())
-    print(event.widget.custom_name)
-    print(f"Date: {date}, Type: {type(date)}")
-    print(f"Month: {month}, Type: {type(month)}")
-    print(f"Year: {year}, Type: {type(year)}")
+    # print(event.widget, event.widget.get())
+    # print(f"Date: {date}, Type: {type(date)}")
+    # print(f"Month: {month}, Type: {type(month)}")
+    # print(f"Year: {year}, Type: {type(year)}")
     
     if month == 'February' and is_leap_year(year): 
         date_range = [dt for dt in range(1, 30)]    #last date: 29
