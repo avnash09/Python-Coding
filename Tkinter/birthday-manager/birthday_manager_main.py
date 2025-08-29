@@ -148,19 +148,16 @@ def custom_messagebox(person):
 
         upd_date_dropdown = ttk.Combobox(dob_window, values='', width=7, state='readonly')
         upd_date_dropdown.set('date')
-        upd_date_dropdown.custom_name = 'year_dropdown'
         upd_date_dropdown.grid(row=2, column=3, sticky='w', padx=5, pady=10)
         upd_date_dropdown.bind("<<ComboboxSelected>>", get_date)
 
         upd_month_dropdown = ttk.Combobox(dob_window, values=MONTHS, width=7, state='readonly')
         upd_month_dropdown.set('month')
-        upd_month_dropdown.custom_name = 'year_dropdown'
         upd_month_dropdown.grid(row=2, column=2, sticky='w', padx=5, pady=10)
         upd_month_dropdown.bind("<<ComboboxSelected>>", lambda event: get_month(event, upd_date_dropdown))
 
         upd_year_dropdown = ttk.Combobox(dob_window, values=YEARS, width=7, state='readonly')
         upd_year_dropdown.set("year")
-        upd_year_dropdown.custom_name = 'year_dropdown'
         upd_year_dropdown.grid(row=2, column=1, sticky='w', padx=5, pady=10)
         upd_year_dropdown.bind("<<ComboboxSelected>>", lambda event: get_year(event, upd_date_dropdown))
 
@@ -355,19 +352,17 @@ birthday_label.grid(row=3, column=1, pady=5)
 
 year_dropdown = ttk.Combobox(values=YEARS, width=7, state='readonly')
 year_dropdown.set("year")
-year_dropdown.custom_name = 'year_dropdown'
 year_dropdown.grid(row=3, column=2, sticky='w')
 year_dropdown.bind("<<ComboboxSelected>>", lambda event: get_year(event, date_dropdown))
     
 month_dropdown = ttk.Combobox(values=MONTHS, width=7, state='readonly')
 month_dropdown.set("month")
-month_dropdown.custom_name = 'month_dropdown'
 month_dropdown.grid(row=3, column=3, sticky='w')
 month_dropdown.bind("<<ComboboxSelected>>", lambda event: get_month(event, date_dropdown))
 
 date_dropdown = ttk.Combobox(values='', width=7, state='readonly')
 date_dropdown.set("date")
-date_dropdown.custom_name = 'date_dropdown'
+# date_dropdown.custom_name = 'date_dropdown'
 date_dropdown.grid(row=3, column=4, sticky='w')
 date_dropdown.bind("<<ComboboxSelected>>", get_date)
 
