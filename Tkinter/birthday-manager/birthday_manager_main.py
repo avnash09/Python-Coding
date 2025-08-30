@@ -300,13 +300,16 @@ def get_birthday_string(birthday_date):
 def search_entry():
     person = name_entry.get().strip().title()
     if person:
-        df = pd.read_json(f"./Tkinter/birthday-manager/{json_filename}")
-
-        if person in df.columns.to_list():
-            print(f"{person} already exists")
-            custom_messagebox(person)
+        try:
+            df = pd.read_json(f"./Tkinter/birthday-manager/{json_filename}")
+        except FileNotFoundError:
+            messagebox.showerror(title='Error', message='Data file not found.')
         else:
-            messagebox.showinfo(message="Person details not found")
+            if person in df.columns.to_list():
+                print(f"{person} already exists")
+                custom_messagebox(person)
+            else:
+                messagebox.showinfo(message="Person details not found")
     else:
         messagebox.showerror(title='Error', message="Person name missing")
 
