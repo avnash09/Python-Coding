@@ -310,10 +310,12 @@ def search_entry():
                 custom_messagebox(person)
             else:
                 messagebox.showinfo(message="Person details not found")
+                window.focus()
+                name_entry.focus()
     else:
         messagebox.showerror(title='Error', message="Person name missing")
-
-    name_entry.focus()
+        window.focus()
+        name_entry.focus()
 
 def get_date(event):
     global birthday_date
