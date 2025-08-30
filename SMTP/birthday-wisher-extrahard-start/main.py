@@ -1,4 +1,5 @@
 import smtplib, os, random, pandas as pd, datetime as dt
+import json
 
 SENDER = 'avinashtestmails@gmail.com'
 RECIPIENT = 'avinashlearnspython@gmail.com'
@@ -43,33 +44,90 @@ if target_path:
 else:
     print(f"Directory '{work_dir}' not found under {base_path}")
 
-birthdays = pd.read_csv('./birthdays.csv')#, index_col=False)
+# ---------------------- using json file ----------------------
 
-test = dt.datetime(2025, 12, 9)
-test_tuple = (test.day, test.month)
+json_filename = 'birthdays.json'
+dir_path = '../../Tkinter/birthday-manager/'
+filepath = dir_path + json_filename
+print(filepath)
 
-picked_letter = random.choice(letters)
+print('\n\n')
+if os.path.exists(filepath): print(f"{json_filename} exists.")
+else: print('File not found.')
 
-for index, bday_person in birthdays.iterrows():
-    if (test.day, test.month) == (bday_person.day, bday_person.month):
+mail_test = dt.datetime(1994, 2, 21)
+date_str = dt.datetime.strptime(f"{mail_test.year}-{mail_test.month}-{mail_test.day}", '%Y-%m-%d')
+formatted_date = dt.datetime.strftime(date_str, '%d-%b-%Y')
+test_tuple = dt.datetime.strftime(date_str, '(%d, %b)')
 
-        # with open(f"../{password_file}", mode='r') as f:
-        #     pwd = f.readline().strip()
-        #     print(pwd)
+try:
+    with open(filepath, mode='r') as data_file:
+        data = json.load(data_file)
+        #type(data): <class 'dict'>
+except FileNotFoundError:
+    print('Data file not found.')
+else: 
+    new_dict = {}
+    picked_letter = random.choice(letters)
 
-        pwd_data = pd.read_csv(f"../{password_file}", names=['key','value'], delimiter="|", index_col=False)
-        data = pwd_data[pwd_data.key == SENDER]
-        pwd = data.value.item()
-        # print(pwd)
+    for person, details in data.items():
+        birthday_str = '-'.join(details['birthday'])
+        formatted_birthday = dt.datetime.strptime(birthday_str, '%Y-%b-%d')
+        birthday_tuple = dt.datetime.strftime(formatted_birthday, '(%d, %b)')
+        new_dict[birthday_tuple] = details
 
-        with open(os.path.join(letters_dir,picked_letter), mode='r') as f:
-            contents = f.read()
-            contents = contents.replace('[NAME]', bday_person['name'])
-            print(contents)
+        if test_tuple == birthday_tuple:
+            #Get Password
+            pwd_data = pd.read_csv(f"../{password_file}", names=['key','value'], delimiter="|", index_col=False)
+            data = pwd_data[pwd_data.key == SENDER]
+            pwd = data.value.item()
 
-        with smtplib.SMTP(host="smtp.gmail.com", port=587) as connection:
-            connection.starttls()
-            connection.login(user=SENDER, password=pwd)
-            connection.sendmail(from_addr=SENDER,
-                                to_addrs=birthdays['email'],
-                                msg=f"Subject:Happy Birthday {bday_person['name']}!\n\n{contents}")
+            #Open the chosen letter, replpace [NAME] wth person's name
+            with open(os.path.join(letters_dir,picked_letter), mode='r') as f:
+                contents = f.read()
+                contents = contents.replace('[NAME]', person)
+                print(contents)
+
+            #Send the mail
+            with smtplib.SMTP(host="smtp.gmail.com", port=587) as connection:
+                connection.starttls()
+                connection.login(user=SENDER, password=pwd)
+                connection.sendmail(
+                    from_addr=SENDER,
+                    to_addrs=RECIPIENT,
+                    msg=f"Subject:Happy Birthday {person}!\n\n{contents}"
+                    )
+    
+# ---------------------- using csv file ----------------------
+# birthdays = pd.read_csv('./birthdays.csv')#, index_col=False)
+
+# test = dt.datetime(2025, 12, 9)
+# test_tuple = (test.day, test.month)
+
+# picked_letter = random.choice(letters)
+
+# for index, bday_person in birthdays.iterrows():
+#     if (test.day, test.month) == (bday_person.day, bday_person.month):
+
+#         # with open(f"../{password_file}", mode='r') as f:
+#         #     pwd = f.readline().strip()
+#         #     print(pwd)
+
+#         pwd_data = pd.read_csv(f"../{password_file}", names=['key','value'], delimiter="|", index_col=False)
+#         data = pwd_data[pwd_data.key == SENDER]
+#         pwd = data.value.item()
+#         # print(pwd)
+
+#         with open(os.path.join(letters_dir,picked_letter), mode='r') as f:
+#             contents = f.read()
+#             contents = contents.replace('[NAME]', bday_person['name'])
+#             print(contents)
+
+#         with smtplib.SMTP(host="smtp.gmail.com", port=587) as connection:
+#             connection.starttls()
+#             connection.login(user=SENDER, password=pwd)
+#             connection.sendmail(from_addr=SENDER,
+#                                 to_addrs=birthdays['email'],
+#                                 msg=f"Subject:Happy Birthday {bday_person['name']}!\n\n{contents}")
+
+# ---------------------- using csv file ----------------------
